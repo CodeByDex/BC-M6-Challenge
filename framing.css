@@ -1,0 +1,15 @@
+* {
+    border: 3px solid black;
+}
+
+header {
+    border-color: red;
+}
+
+main {
+    border-color: orange;
+}
+
+p {
+    border-color: yellow;
+}
