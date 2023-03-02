@@ -1,0 +1,14 @@
+* {
+    margin: 0 0;
+    padding: 0 0;
+    margin-block: 0;
+    margin-inline: 0;
+    font-weight: normal;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+ul,
+ol {
+    list-style-position: inside;
+}

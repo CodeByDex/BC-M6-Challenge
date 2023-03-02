@@ -12,8 +12,11 @@
         <meta name="og:url" content="https://code.bydex.co/BC-M6-Challenge/">
         <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
+        <link rel="stylesheet" href="./assets/css/reset.css">
         <link rel="stylesheet" href="./assets/css/layout.css">
-        <link rel="stylesheet" href="../framing.css">
+        <link rel="stylesheet" href="./assets/css/color.css">
+        <link rel="stylesheet" href="./assets/css/text.css">
+        <!-- <link rel="stylesheet" href="../framing.css"> -->
     </head>
     <body>
         <header>
@@ -23,20 +26,63 @@
             <aside>
                 <div>
                     <h2>Search for a City:</h2>
+                    <input type="text">
+                    <button id="City-Search">Search</button>
                 </div>
+                <hr>
                 <div>
                     <ul>
-                        <li>History 1</li>
-                        <li>History 2</li>
+                        <li><button>History 1</button></li>
+                        <li><button>History 2</button></li>
                     </ul>
                 </div>
             </aside>
             <section>
-                <div>
-                    <h2>City Weather</h2>
+                <div id="Day-Forecast">
+                    <h2>City (Date)<i></i></h2>
+                    <p>Temp: <span></span></p>
+                    <p>Wind: <span></span></p>
+                    <p>Humidity: <span></span></p>
                 </div>
                 <div>
                     <h3>5-Day Forecast</h3>
+                    <div id="Short-Term-Forecast">
+                        <div>
+                            <h4>Day 1</h4>
+                            <i></i>
+                            <p>Temp: <span></span></p>
+                            <p>Wind: <span></span></p>
+                            <p>Humidity: <span></span></p>
+                        </div>
+                        <div>
+                            <h4>Day 2</h4>
+                            <i></i>
+                            <p>Temp: <span></span></p>
+                            <p>Wind: <span></span></p>
+                            <p>Humidity: <span></span></p>
+                        </div>
+                        <div>
+                            <h4>Day 3</h4>
+                            <i></i>
+                            <p>Temp: <span></span></p>
+                            <p>Wind: <span></span></p>
+                            <p>Humidity: <span></span></p>
+                        </div>
+                        <div>
+                            <h4>Day 4</h4>
+                            <i></i>
+                            <p>Temp: <span></span></p>
+                            <p>Wind: <span></span></p>
+                            <p>Humidity: <span></span></p>
+                        </div>
+                        <div>
+                            <h4>Day 5</h4>
+                            <i></i>
+                            <p>Temp: <span></span></p>
+                            <p>Wind: <span></span></p>
+                            <p>Humidity: <span></span></p>
+                        </div>
+                    </div>
                 </div>
             </section>
         </main>
