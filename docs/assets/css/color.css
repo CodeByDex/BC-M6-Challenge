@@ -1,0 +1,18 @@
+header {
+    background-image: linear-gradient(to right, blue, purple);
+    color: white;
+}
+
+ul button {
+    background-color: grey;
+}
+
+#City-Search {
+    background-color: blue;
+    color: white;
+}
+
+#Short-Term-Forecast div {
+    background-color: grey;
+    color: white;
+}

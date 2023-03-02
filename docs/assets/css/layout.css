@@ -1,11 +1,47 @@
+aside {
+    padding: 0 5px;
+}
+
+button {
+    margin: 5px 0;
+    width: 100%;
+}
+
 header {
     text-align: center;
 }
 
+input {
+    width: 100%;
+}
+
 main {
-    display: flex;
+    display: flex;    
+    margin: 5px;
+    padding: 5px;
 }
 
 section {
     width: 75%
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    text-align: center;
+}
+
+ul li {
+    margin: 5px 0;
+}
+
+#Day-Forecast {
+    border-width: 2px;
+    border-style: solid;
+    padding: 5px;
+}
+
+#Short-Term-Forecast {
+    display: flex;
+    justify-content: space-between;
 }
