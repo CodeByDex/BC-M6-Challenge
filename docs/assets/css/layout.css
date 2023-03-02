@@ -1,0 +1,11 @@
+header {
+    text-align: center;
+}
+
+main {
+    display: flex;
+}
+
+section {
+    width: 75%
+}
