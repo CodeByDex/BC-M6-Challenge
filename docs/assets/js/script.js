@@ -1,3 +1,4 @@
+const weatherAPIKey = "8bddc3309748f00ebd0dade126b57ec6";
 
 window.addEventListener("load", () => {
     document.querySelector("#City-Search").addEventListener("click", ClickedSearchButton);
@@ -5,17 +6,17 @@ window.addEventListener("load", () => {
     LoadSearchHistory();
 });
 
-function ClickedSearchButton(event){
+async function ClickedSearchButton(event){
     const searchTextEL = event.target.parentNode.querySelector("input");
     
-    let results = GetForecastData(searchTextEL.value);
+    let results = await GetForecastData(searchTextEL.value);
 
     AddCityToSearchHistory(searchTextEL.value);
 
     UpdateForecastInfo(results);
 };
 
-function GetForecastData(searchText){
+async function GetForecastData(searchText){
     let results = null;
 
     searchText = searchText.toLowerCase();
@@ -23,61 +24,84 @@ function GetForecastData(searchText){
     results = CheckSessionForResults(searchText);
 
     if (results === null){
-        results = GetForecastFromAPI(searchText);
+        results = await GetForecastFromAPI(searchText);
 
         if(results != null){
             AddResultsToSessionStorage(searchText, results);
         }
     }
 
-    results = {
-        City: searchText,
-        Forecast: [
-            {
-                Date: new Date("2023-03-04"),
-                Temp: 80,
-                Humidity: 30,
-                Wind: 2
-            },
-            {
-                Date: new Date("2023-03-05"),
-                Temp: 81,
-                Humidity: 30,
-                Wind: 2
-            },
-            {
-                Date: new Date("2023-03-06"),
-                Temp: 82,
-                Humidity: 30,
-                Wind: 2
-            },
-            {
-                Date: new Date("2023-03-07"),
-                Temp: 83,
-                Humidity: 30,
-                Wind: 2
-            },
-            {
-                Date: new Date("2023-03-08"),
-                Temp: 84,
-                Humidity: 30,
-                Wind: 2
-            },
-            {
-                Date: new Date("2023-03-09"),
-                Temp: 85,
-                Humidity: 30,
-                Wind: 2
-            }
-        ]
-    }
-
     return results;    
 };
 
-function CheckSessionForResults(city){};
+function CheckSessionForResults(city){return null;};
 
-function GetForecastFromAPI(city){};
+//api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API key}
+async function GetForecastFromAPI(city){
+    let lat, long;
+    [lat, long] = await GetLatLongFromAPI(city);
+
+    let results = {
+        City: city,
+        Forecast: []
+    };
+
+    let params = new URLSearchParams();
+
+    params.append("lat", lat);
+    params.append("lon", long);
+    params.append("units", "metric");
+    params.append("appid", weatherAPIKey);
+
+    const response = await fetch("http://api.openweathermap.org/data/2.5/forecast?" + params.toString());
+
+    if(!response.ok)
+    {
+        return results;
+    }    
+
+    let forecastData = await response.json();
+
+    results.City = forecastData.city.name; 
+
+    //Start at the most current available forecast and advance by 24 hours (8 * 3 Hours = 24)
+    for (let index = 0; index < forecastData.list.length; index = index + 8) {
+        results.Forecast.push({
+            Date: new Date(forecastData.list[index].dt * 1000),
+            Temp: forecastData.list[index].main.temp,
+            Humidity: forecastData.list[index].main.humidity,
+            Wind: forecastData.list[index].wind.speed
+        })
+    }
+
+    //Since the last days forecast might not be available at an even 24 hours out, need to grab the last available forecast
+    results.Forecast.push({
+        Date: new Date(forecastData.list[forecastData.list.length - 1].dt * 1000),
+        Temp: forecastData.list[forecastData.list.length - 1].main.temp,
+        Humidity: forecastData.list[forecastData.list.length - 1].main.humidity,
+        Wind: forecastData.list[forecastData.list.length - 1].wind.speed
+    })
+
+    return results;
+};
+
+//http://api.openweathermap.org/geo/1.0/direct?q={city name},{state code},{country code}&limit={limit}&appid={API key}
+async function GetLatLongFromAPI(city){
+    let results;
+
+    let params = new URLSearchParams();
+
+    params.append("q", city);
+    params.append("Limit", 1);
+    params.append("appid", weatherAPIKey);
+
+    const response = await fetch("http://api.openweathermap.org/geo/1.0/direct?" + params.toString())
+        
+    if (response.ok){
+        results = await response.json();
+        return [results[0].lat, results[0].lon];
+    }
+};
 
 function AddResultsToSessionStorage(city, results){};
 
