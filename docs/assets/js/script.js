@@ -105,8 +105,6 @@ async function GetLatLongFromAPI(city){
 
 function AddResultsToSessionStorage(city, results){};
 
-function AddCityToSearchHistory(city){};
-
 function UpdateForecastInfo(forecastData){
     const today = document.querySelector("#Day-Forecast");
     
@@ -134,4 +132,56 @@ function UpdateForecastInfo(forecastData){
     }
 };
 
-function LoadSearchHistory(){};
+const searchHistoryKey = "SearchHistory";
+
+function LoadSearchHistory(){
+    let CurrentHistory = JSON.parse(localStorage.getItem(searchHistoryKey));
+
+    if (CurrentHistory === null){
+        CurrentHistory = [];
+    }
+
+    CurrentHistory.sort((a, b) => {
+        return new Date(b.LastSearch).getTime() - new Date(a.LastSearch).getTime();
+    });
+
+    const historyButtons = document.querySelector("#History");
+
+    historyButtons.innerHTML = "";
+
+    CurrentHistory.forEach(hist => {
+        let newLI = document.createElement("li");
+        let newButton = document.createElement("button");
+
+        newButton.textContent = hist.City;
+
+        newLI.appendChild(newButton);
+
+        historyButtons.appendChild(newLI);
+    });
+    
+};
+
+function AddCityToSearchHistory(city){
+    let CurrentHistory = JSON.parse(localStorage.getItem(searchHistoryKey));
+
+    if (CurrentHistory === null){
+        CurrentHistory = [];
+    }
+
+    let indexOfCity = CurrentHistory.findIndex(x => x.City === city);
+
+    if (indexOfCity != -1)
+    {
+        CurrentHistory.splice(indexOfCity, 1);
+    }
+
+    CurrentHistory.push({
+        City: city,
+        LastSearch: new Date()
+    })
+
+    localStorage.setItem(searchHistoryKey, JSON.stringify(CurrentHistory));
+
+    LoadSearchHistory();
+};
