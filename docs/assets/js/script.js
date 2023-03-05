@@ -2,46 +2,18 @@ const weatherAPIKey = "8bddc3309748f00ebd0dade126b57ec6";
 const forecastSection = document.querySelector("#Forecasts");
 const siteMessageSection = document.querySelector("#Site-Message");
 
-window.addEventListener("load", () => {
-    document.querySelector("#City-Search").addEventListener("click", ClickedSearchButton);
-    document.querySelector("#History").addEventListener("click", ClickedHistoryButton);
-    document.querySelector("input").addEventListener("keydown", (event) => {
-        if(event.key === "Enter"){
-            ClickedSearchButton(event);
-        }
-    })
-
-    LoadSearchHistory();
-});
-
-function ClickedSearchButton(event){
-    const searchTextEL = event.target.parentNode.querySelector("input");
-    
-    SearchForWeather(searchTextEL.value);
-
-    searchTextEL.value = "";
-};
-
-function ClickedHistoryButton(event){
-    if(event.target.localName === "button"){
-        SearchForWeather(event.target.textContent);
-    }
-};
-
 async function SearchForWeather(searchText) {
     siteMessageSection.textContent = "";
     siteMessageSection.classList.add("hide");
 
-    if(searchText === "")
-    {
+    if (searchText === "") {
         DisplayError("Please Provide Valid Search Request");
         return;
     }
 
     let results = await GetForecastData(searchText);
 
-    if (results === null)
-    {
+    if (results === null) {
         DisplayError("Forecast Results Not Found");
         return;
     }
@@ -51,51 +23,74 @@ async function SearchForWeather(searchText) {
     UpdateForecastInfo(results);
 }
 
-async function GetForecastData(searchText){
+async function GetForecastData(searchText) {
     let results = null;
 
     searchText = searchText.toLowerCase();
 
     results = CheckSessionForResults(searchText);
 
-    if (results === null){
+    if (results === null) {
         results = await GetForecastFromAPI(searchText);
 
-        if(results != null){
+        if (results != null) {
             AddResultsToSessionStorage(searchText, results);
             AddResultsToSessionStorage(results.City, results);
         }
     }
 
-    return results;    
-};
-
-function CheckSessionForResults(city){
-    let results = JSON.parse(sessionStorage.getItem(city));
-
-    if (results === null)
-    {
-        return null;
-    }
-
-    //JSON Parse Doesn't instantiate the Date field as a Date Object
-    results.LastStored = new Date(results.LastStored);
-
-    //stored results are old so don't sue them (Min * Sec * millsec)
-    if((new Date().getTime() - results.LastStored.getTime()) > (15 * 60 *1000))
-    {
-        return null;
-    }
-
-    results.Forecast.forEach(e => {
-        e.Date = new Date(e.Date);
-    }); 
-    
     return results;
 };
 
+function DisplayError(errorMessage) {
+    forecastSection.classList.add("hide");
+    siteMessageSection.classList.remove("hide");
+    siteMessageSection.textContent += " | " + errorMessage;
+};
+
+function UpdateForecastInfo(forecastData) {
+    if (forecastData) {
+        const today = document.querySelector("#Day-Forecast");
+
+        let todaysDetails = today.querySelectorAll("p span");
+        let currentDay = forecastData.Forecast[0];
+
+        today.querySelector("h2 span").textContent = forecastData.City + " (" + currentDay.Date.toLocaleDateString() + ")";
+        today.querySelector("h2 img").setAttribute("src", "https://openweathermap.org/img/wn/" + currentDay.Icon + ".png");
+        today.querySelector("h2 img").setAttribute("alt", currentDay.Description);
+        todaysDetails[0].textContent = currentDay.Temp;
+        todaysDetails[1].textContent = currentDay.Wind;
+        todaysDetails[2].textContent = currentDay.Humidity;
+
+        const forecastDays = document.querySelectorAll("#Short-Term-Forecast div");
+
+        for (let index = 0; index < forecastDays.length; index++) {
+            if (index + 1 < forecastData.Forecast.length) {
+                todaysDetails = forecastDays[index].querySelectorAll("p span");
+                currentDay = forecastData.Forecast[index + 1];
+
+                forecastDays[index].querySelector("h4").textContent = currentDay.Date.toLocaleDateString();
+                forecastDays[index].querySelector("img").setAttribute("src", "https://openweathermap.org/img/wn/" + currentDay.Icon + ".png");
+                forecastDays[index].querySelector("img").setAttribute("alt", currentDay.Description);
+                todaysDetails[0].textContent = currentDay.Temp;
+                todaysDetails[1].textContent = currentDay.Wind;
+                todaysDetails[2].textContent = currentDay.Humidity;
+            }
+        }
+
+        forecastSection.classList.remove("hide");
+        siteMessageSection.classList.add("hide");
+        siteMessageSection.textContent = "";
+    } else {
+        forecastSection.classList.add("hide");
+    }
+};
+
+/*******************************************************************
+API Functions
+********************************************************************/
 //api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API key}
-async function GetForecastFromAPI(city){
+async function GetForecastFromAPI(city) {
     let lat, long, cityName, stateName, countryName;
     let results = {
         City: city,
@@ -117,18 +112,17 @@ async function GetForecastFromAPI(city){
 
     const response = await fetch("https://api.openweathermap.org/data/2.5/forecast?" + params.toString());
 
-    if(!response.ok)
-    {
+    if (!response.ok) {
         DisplayError("Response Error:" + response.status + "\n" + "Could not get forecast");
         return null;
-    }    
+    }
 
     let forecastData = await response.json();
 
-    if(stateName === undefined){
-        results.City = cityName + ", " + countryName; 
+    if (stateName === undefined) {
+        results.City = cityName + ", " + countryName;
     } else {
-        results.City = cityName + ", " + stateName + ", " + countryName; 
+        results.City = cityName + ", " + stateName + ", " + countryName;
     }
 
     //Start at the most current available forecast and advance by 24 hours (8 * 3 Hours = 24)
@@ -157,7 +151,7 @@ async function GetForecastFromAPI(city){
 };
 
 //http://api.openweathermap.org/geo/1.0/direct?q={city name},{state code},{country code}&limit={limit}&appid={API key}
-async function GetLatLongFromAPI(city){
+async function GetLatLongFromAPI(city) {
     let results;
 
     let params = new URLSearchParams();
@@ -167,11 +161,10 @@ async function GetLatLongFromAPI(city){
     params.append("appid", weatherAPIKey);
 
     const response = await fetch("https://api.openweathermap.org/geo/1.0/direct?" + params.toString())
-        
-    if (response.ok){
+
+    if (response.ok) {
         results = await response.json();
-        if (results.length != 1)
-        {
+        if (results.length != 1) {
             DisplayError("No Coordinates Returned" + "\n" + "Could not retrieve Location Coordinates");
             return [null, null];
         }
@@ -182,63 +175,45 @@ async function GetLatLongFromAPI(city){
     }
 };
 
-function DisplayError(errorMessage){
-    forecastSection.classList.add("hide");
-    siteMessageSection.classList.remove("hide");
-    siteMessageSection.textContent += " | "+errorMessage;
-}
+/*******************************************************************
+Event Functions
+********************************************************************/
+window.addEventListener("load", () => {
+    document.querySelector("#City-Search").addEventListener("click", ClickedSearchButton);
+    document.querySelector("#History").addEventListener("click", ClickedHistoryButton);
+    document.querySelector("input").addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+            ClickedSearchButton(event);
+        }
+    })
 
-function AddResultsToSessionStorage(city, results){
-    results.LastStored = new Date();
-    sessionStorage.setItem(city, JSON.stringify(results));
+    LoadSearchHistory();
+});
+
+function ClickedSearchButton(event) {
+    const searchTextEL = event.target.parentNode.querySelector("input");
+
+    SearchForWeather(searchTextEL.value);
+
+    searchTextEL.value = "";
 };
 
-function UpdateForecastInfo(forecastData){
-    if(forecastData)
-    {
-        const today = document.querySelector("#Day-Forecast");
-        
-        let todaysDetails = today.querySelectorAll("p span");
-        let currentDay = forecastData.Forecast[0];
-
-        today.querySelector("h2 span").textContent = forecastData.City + " (" + currentDay.Date.toLocaleDateString() + ")";
-        today.querySelector("h2 img").setAttribute("src", "https://openweathermap.org/img/wn/"+currentDay.Icon+".png");
-        today.querySelector("h2 img").setAttribute("alt", currentDay.Description);
-        todaysDetails[0].textContent = currentDay.Temp;
-        todaysDetails[1].textContent = currentDay.Wind;
-        todaysDetails[2].textContent = currentDay.Humidity;
-
-        const forecastDays = document.querySelectorAll("#Short-Term-Forecast div");
-
-        for (let index = 0; index < forecastDays.length; index++) {
-            if (index+1 < forecastData.Forecast.length)
-            {
-                todaysDetails = forecastDays[index].querySelectorAll("p span");
-                currentDay = forecastData.Forecast[index+1];
-
-                forecastDays[index].querySelector("h4").textContent = currentDay.Date.toLocaleDateString();
-                forecastDays[index].querySelector("img").setAttribute("src", "https://openweathermap.org/img/wn/"+currentDay.Icon+".png");
-                forecastDays[index].querySelector("img").setAttribute("alt", currentDay.Description);
-                todaysDetails[0].textContent = currentDay.Temp;
-                todaysDetails[1].textContent = currentDay.Wind;
-                todaysDetails[2].textContent = currentDay.Humidity;
-            }
-        }
-
-        forecastSection.classList.remove("hide");
-        siteMessageSection.classList.add("hide");
-        siteMessageSection.textContent = "";
-    } else {
-        forecastSection.classList.add("hide");
+function ClickedHistoryButton(event) {
+    if (event.target.localName === "button") {
+        SearchForWeather(event.target.textContent);
     }
 };
 
+/*******************************************************************
+Storage Functions
+********************************************************************/
+
 const searchHistoryKey = "SearchHistory";
 
-function LoadSearchHistory(){
+function LoadSearchHistory() {
     let CurrentHistory = JSON.parse(localStorage.getItem(searchHistoryKey));
 
-    if (CurrentHistory === null){
+    if (CurrentHistory === null) {
         CurrentHistory = [];
     }
 
@@ -260,20 +235,19 @@ function LoadSearchHistory(){
 
         historyButtons.appendChild(newLI);
     });
-    
+
 };
 
-function AddCityToSearchHistory(city){
+function AddCityToSearchHistory(city) {
     let CurrentHistory = JSON.parse(localStorage.getItem(searchHistoryKey));
 
-    if (CurrentHistory === null){
+    if (CurrentHistory === null) {
         CurrentHistory = [];
     }
 
     let indexOfCity = CurrentHistory.findIndex(x => x.City.toLowerCase() === city.toLowerCase());
 
-    if (indexOfCity != -1)
-    {
+    if (indexOfCity != -1) {
         CurrentHistory.splice(indexOfCity, 1);
     }
 
@@ -285,4 +259,31 @@ function AddCityToSearchHistory(city){
     localStorage.setItem(searchHistoryKey, JSON.stringify(CurrentHistory));
 
     LoadSearchHistory();
+};
+
+function AddResultsToSessionStorage(city, results) {
+    results.LastStored = new Date();
+    sessionStorage.setItem(city, JSON.stringify(results));
+};
+
+function CheckSessionForResults(city) {
+    let results = JSON.parse(sessionStorage.getItem(city));
+
+    if (results === null) {
+        return null;
+    }
+
+    //JSON Parse Doesn't instantiate the Date field as a Date Object
+    results.LastStored = new Date(results.LastStored);
+
+    //stored results are old so don't sue them (Min * Sec * millsec)
+    if ((new Date().getTime() - results.LastStored.getTime()) > (15 * 60 * 1000)) {
+        return null;
+    }
+
+    results.Forecast.forEach(e => {
+        e.Date = new Date(e.Date);
+    });
+
+    return results;
 };

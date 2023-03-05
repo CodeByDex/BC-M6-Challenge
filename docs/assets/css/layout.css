@@ -1,9 +1,12 @@
+:root {
+    --default-spacing: 5px;
+}
 aside {
-    padding: 0 5px;
+    padding: 0 var(--default-spacing);
 }
 
 button {
-    margin: 5px 0;
+    margin: var(--default-spacing) 0;
     width: 100%;
 }
 
@@ -16,9 +19,9 @@ input {
 }
 
 main {
-    display: flex;    
-    margin: 5px;
-    padding: 5px;
+    display: flex;
+    margin: var(--default-spacing);
+    padding: var(--default-spacing);
     flex-wrap: wrap;
 }
 
@@ -33,7 +36,7 @@ ul {
 }
 
 ul li {
-    margin: 5px 0;
+    margin: var(--default-spacing) 0;
 }
 
 .hide {
@@ -43,7 +46,7 @@ ul li {
 #Day-Forecast {
     border-width: 2px;
     border-style: solid;
-    padding: 5px;
+    padding: var(--default-spacing);
 }
 
 #Short-Term-Forecast {
@@ -53,7 +56,7 @@ ul li {
 }
 
 #Short-Term-Forecast div {
-    padding: 5px;
+    padding: var(--default-spacing);
     min-width: 15%;
-    margin-top: 5px;
+    margin-top: var(--default-spacing);
 }
