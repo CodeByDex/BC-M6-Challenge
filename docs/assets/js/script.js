@@ -111,7 +111,7 @@ async function GetForecastFromAPI(city){
     //Start at the most current available forecast and advance by 24 hours (8 * 3 Hours = 24)
     for (let index = 0; index < forecastData.list.length; index = index + 8) {
         results.Forecast.push({
-            Date: new Date(forecastData.list[index].dt * 1000),
+            Date: new Date((forecastData.list[index].dt + forecastData.city.timezone) * 1000),
             Temp: forecastData.list[index].main.temp,
             Humidity: forecastData.list[index].main.humidity,
             Wind: forecastData.list[index].wind.speed,
@@ -122,7 +122,7 @@ async function GetForecastFromAPI(city){
 
     //Since the last days forecast might not be available at an even 24 hours out, need to grab the last available forecast
     results.Forecast.push({
-        Date: new Date(forecastData.list[forecastData.list.length - 1].dt * 1000),
+        Date: new Date((forecastData.list[forecastData.list.length - 1].dt + forecastData.city.timezone) * 1000),
         Temp: forecastData.list[forecastData.list.length - 1].main.temp,
         Humidity: forecastData.list[forecastData.list.length - 1].main.humidity,
         Wind: forecastData.list[forecastData.list.length - 1].wind.speed,
