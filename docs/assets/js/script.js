@@ -131,7 +131,6 @@ async function GetLatLongFromAPI(city){
     const response = await fetch("https://api.openweathermap.org/geo/1.0/direct?" + params.toString())
         
     if (response.ok){
-        console.log(response);
         results = await response.json();
         if (results.length != 1)
         {
@@ -177,7 +176,7 @@ function UpdateForecastInfo(forecastData){
                 currentDay = forecastData.Forecast[index+1];
 
                 forecastDays[index].querySelector("h4").textContent = currentDay.Date.toLocaleDateString();
-                forecastDays[index].querySelector("img").setAttribute("src", "http://openweathermap.org/img/wn/"+currentDay.Icon+".png");
+                forecastDays[index].querySelector("img").setAttribute("src", "https://openweathermap.org/img/wn/"+currentDay.Icon+".png");
                 forecastDays[index].querySelector("img").setAttribute("alt", currentDay.Description);
                 todaysDetails[0].textContent = currentDay.Temp;
                 todaysDetails[1].textContent = currentDay.Wind;
