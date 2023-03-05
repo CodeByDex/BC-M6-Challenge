@@ -70,7 +70,9 @@ async function GetForecastFromAPI(city){
             Date: new Date(forecastData.list[index].dt * 1000),
             Temp: forecastData.list[index].main.temp,
             Humidity: forecastData.list[index].main.humidity,
-            Wind: forecastData.list[index].wind.speed
+            Wind: forecastData.list[index].wind.speed,
+            Icon: forecastData.list[index].weather[0].icon,
+            Description: forecastData.list[index].weather[0].description
         })
     }
 
@@ -79,7 +81,9 @@ async function GetForecastFromAPI(city){
         Date: new Date(forecastData.list[forecastData.list.length - 1].dt * 1000),
         Temp: forecastData.list[forecastData.list.length - 1].main.temp,
         Humidity: forecastData.list[forecastData.list.length - 1].main.humidity,
-        Wind: forecastData.list[forecastData.list.length - 1].wind.speed
+        Wind: forecastData.list[forecastData.list.length - 1].wind.speed,
+        Icon: forecastData.list[forecastData.list.length - 1].weather[0].icon,
+        Description: forecastData.list[forecastData.list.length - 1].weather[0].description
     })
 
     return results;
@@ -111,7 +115,9 @@ function UpdateForecastInfo(forecastData){
     let todaysDetails = today.querySelectorAll("p span");
     let currentDay = forecastData.Forecast[0];
 
-    today.querySelector("h2").textContent = forecastData.City + " (" + currentDay.Date.toLocaleDateString() + ")";
+    today.querySelector("h2 span").textContent = forecastData.City + " (" + currentDay.Date.toLocaleDateString() + ")";
+    today.querySelector("h2 img").setAttribute("src", "http://openweathermap.org/img/wn/"+currentDay.Icon+".png");
+    today.querySelector("h2 img").setAttribute("alt", currentDay.Description);
     todaysDetails[0].textContent = currentDay.Temp;
     todaysDetails[1].textContent = currentDay.Wind;
     todaysDetails[2].textContent = currentDay.Humidity;
@@ -125,6 +131,8 @@ function UpdateForecastInfo(forecastData){
             currentDay = forecastData.Forecast[index+1];
 
             forecastDays[index].querySelector("h4").textContent = currentDay.Date.toLocaleDateString();
+            forecastDays[index].querySelector("img").setAttribute("src", "http://openweathermap.org/img/wn/"+currentDay.Icon+".png");
+            forecastDays[index].querySelector("img").setAttribute("alt", currentDay.Description);
             todaysDetails[0].textContent = currentDay.Temp;
             todaysDetails[1].textContent = currentDay.Wind;
             todaysDetails[2].textContent = currentDay.Humidity;
