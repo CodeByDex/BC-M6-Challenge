@@ -81,7 +81,7 @@ async function GetForecastFromAPI(city){
     params.append("units", "metric");
     params.append("appid", weatherAPIKey);
 
-    const response = await fetch("http://api.openweathermap.org/data/2.5/forecast?" + params.toString());
+    const response = await fetch("https://api.openweathermap.org/data/2.5/forecast?" + params.toString());
 
     if(!response.ok)
     {
