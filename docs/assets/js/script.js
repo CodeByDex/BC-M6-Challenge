@@ -1,4 +1,5 @@
 const weatherAPIKey = "8bddc3309748f00ebd0dade126b57ec6";
+const forecastSection = document.querySelector("#Forecasts");
 
 window.addEventListener("load", () => {
     document.querySelector("#City-Search").addEventListener("click", ClickedSearchButton);
@@ -153,8 +154,10 @@ function UpdateForecastInfo(forecastData){
                 todaysDetails[2].textContent = currentDay.Humidity;
             }
         }
+
+        forecastSection.classList.remove("hide");
     } else {
-        
+
     }
 };
 
