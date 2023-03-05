@@ -135,6 +135,30 @@ function UpdateForecastInfo(forecastData){
 const searchHistoryKey = "SearchHistory";
 
 function LoadSearchHistory(){
+    let CurrentHistory = JSON.parse(localStorage.getItem(searchHistoryKey));
+
+    if (CurrentHistory === null){
+        CurrentHistory = [];
+    }
+
+    CurrentHistory.sort((a, b) => {
+        return new Date(b.LastSearch).getTime() - new Date(a.LastSearch).getTime();
+    });
+
+    const historyButtons = document.querySelector("#History");
+
+    historyButtons.innerHTML = "";
+
+    CurrentHistory.forEach(hist => {
+        let newLI = document.createElement("li");
+        let newButton = document.createElement("button");
+
+        newButton.textContent = hist.City;
+
+        newLI.appendChild(newButton);
+
+        historyButtons.appendChild(newLI);
+    });
     
 };
 
