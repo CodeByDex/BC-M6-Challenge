@@ -63,13 +63,36 @@ async function GetForecastData(searchText){
 
         if(results != null){
             AddResultsToSessionStorage(searchText, results);
+            AddResultsToSessionStorage(results.City, results);
         }
     }
 
     return results;    
 };
 
-function CheckSessionForResults(city){return null;};
+function CheckSessionForResults(city){
+    let results = JSON.parse(sessionStorage.getItem(city));
+
+    if (results === null)
+    {
+        return null;
+    }
+
+    //JSON Parse Doesn't instantiate the Date field as a Date Object
+    results.LastStored = new Date(results.LastStored);
+
+    //stored results are old so don't sue them (Min * Sec * millsec)
+    if((new Date().getTime() - results.LastStored.getTime()) > (15 * 60 *1000))
+    {
+        return null;
+    }
+
+    results.Forecast.forEach(e => {
+        e.Date = new Date(e.Date);
+    }); 
+    
+    return results;
+};
 
 //api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API key}
 async function GetForecastFromAPI(city){
@@ -165,7 +188,10 @@ function DisplayError(errorMessage){
     siteMessageSection.textContent += " | "+errorMessage;
 }
 
-function AddResultsToSessionStorage(city, results){};
+function AddResultsToSessionStorage(city, results){
+    results.LastStored = new Date();
+    sessionStorage.setItem(city, JSON.stringify(results));
+};
 
 function UpdateForecastInfo(forecastData){
     if(forecastData)
