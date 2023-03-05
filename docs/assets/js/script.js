@@ -1,5 +1,6 @@
 const weatherAPIKey = "8bddc3309748f00ebd0dade126b57ec6";
 const forecastSection = document.querySelector("#Forecasts");
+const siteMessageSection = document.querySelector("#Site-Message");
 
 window.addEventListener("load", () => {
     document.querySelector("#City-Search").addEventListener("click", ClickedSearchButton);
@@ -23,7 +24,16 @@ function ClickedHistoryButton(event){
 };
 
 async function SearchForWeather(searchText) {
+    siteMessageSection.textContent = "";
+    siteMessageSection.classList.add("hide");
+
     let results = await GetForecastData(searchText);
+
+    if (results === null)
+    {
+        DisplayError("Forecast Results Not Found");
+        return;
+    }
 
     AddCityToSearchHistory(searchText);
 
@@ -53,12 +63,16 @@ function CheckSessionForResults(city){return null;};
 //api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API key}
 async function GetForecastFromAPI(city){
     let lat, long;
-    [lat, long] = await GetLatLongFromAPI(city);
-
     let results = {
         City: city,
         Forecast: []
     };
+
+    [lat, long] = await GetLatLongFromAPI(city);
+
+    if (lat === null || long === null) {
+        return null;
+    }
 
     let params = new URLSearchParams();
 
@@ -71,7 +85,8 @@ async function GetForecastFromAPI(city){
 
     if(!response.ok)
     {
-        return results;
+        DisplayError("Response Error:" + response.status + "\n" + "Could not get forecast");
+        return null;
     }    
 
     let forecastData = await response.json();
@@ -113,13 +128,28 @@ async function GetLatLongFromAPI(city){
     params.append("Limit", 1);
     params.append("appid", weatherAPIKey);
 
-    const response = await fetch("http://api.openweathermap.org/geo/1.0/direct?" + params.toString())
+    const response = await fetch("https://api.openweathermap.org/geo/1.0/direct?" + params.toString())
         
     if (response.ok){
+        console.log(response);
         results = await response.json();
+        if (results.length != 1)
+        {
+            DisplayError("No Coordinates Returned" + "\n" + "Could not retrieve Location Coordinates");
+            return [null, null];
+        }
         return [results[0].lat, results[0].lon];
+    } else {
+        DisplayError("Response Error: " + response.status + "\n" + "Could not retrieve Location Coordinates");
+        return [null, null];
     }
 };
+
+function DisplayError(errorMessage){
+    forecastSection.classList.add("hide");
+    siteMessageSection.classList.remove("hide");
+    siteMessageSection.textContent += " | "+errorMessage;
+}
 
 function AddResultsToSessionStorage(city, results){};
 
@@ -132,7 +162,7 @@ function UpdateForecastInfo(forecastData){
         let currentDay = forecastData.Forecast[0];
 
         today.querySelector("h2 span").textContent = forecastData.City + " (" + currentDay.Date.toLocaleDateString() + ")";
-        today.querySelector("h2 img").setAttribute("src", "http://openweathermap.org/img/wn/"+currentDay.Icon+".png");
+        today.querySelector("h2 img").setAttribute("src", "https://openweathermap.org/img/wn/"+currentDay.Icon+".png");
         today.querySelector("h2 img").setAttribute("alt", currentDay.Description);
         todaysDetails[0].textContent = currentDay.Temp;
         todaysDetails[1].textContent = currentDay.Wind;
@@ -156,8 +186,10 @@ function UpdateForecastInfo(forecastData){
         }
 
         forecastSection.classList.remove("hide");
+        siteMessageSection.classList.add("hide");
+        siteMessageSection.textContent = "";
     } else {
-
+        forecastSection.classList.add("hide");
     }
 };
 
