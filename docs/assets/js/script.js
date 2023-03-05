@@ -229,7 +229,7 @@ function AddCityToSearchHistory(city){
         CurrentHistory = [];
     }
 
-    let indexOfCity = CurrentHistory.findIndex(x => x.City === city);
+    let indexOfCity = CurrentHistory.findIndex(x => x.City.toLowerCase() === city.toLowerCase());
 
     if (indexOfCity != -1)
     {
