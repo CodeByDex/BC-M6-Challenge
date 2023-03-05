@@ -19,6 +19,7 @@ main {
     display: flex;    
     margin: 5px;
     padding: 5px;
+    flex-wrap: wrap;
 }
 
 section {
@@ -48,6 +49,7 @@ ul li {
 #Short-Term-Forecast {
     display: flex;
     justify-content: space-between;
+    flex-wrap: wrap;
 }
 
 #Short-Term-Forecast div {
