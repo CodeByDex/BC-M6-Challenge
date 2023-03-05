@@ -5,6 +5,11 @@ const siteMessageSection = document.querySelector("#Site-Message");
 window.addEventListener("load", () => {
     document.querySelector("#City-Search").addEventListener("click", ClickedSearchButton);
     document.querySelector("#History").addEventListener("click", ClickedHistoryButton);
+    document.querySelector("input").addEventListener("keydown", (event) => {
+        if(event.key === "Enter"){
+            ClickedSearchButton(event);
+        }
+    })
 
     LoadSearchHistory();
 });
@@ -26,6 +31,12 @@ function ClickedHistoryButton(event){
 async function SearchForWeather(searchText) {
     siteMessageSection.textContent = "";
     siteMessageSection.classList.add("hide");
+
+    if(searchText === "")
+    {
+        DisplayError("Please Provide Valid Search Request");
+        return;
+    }
 
     let results = await GetForecastData(searchText);
 
