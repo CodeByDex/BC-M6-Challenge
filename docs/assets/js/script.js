@@ -2,19 +2,32 @@ const weatherAPIKey = "8bddc3309748f00ebd0dade126b57ec6";
 
 window.addEventListener("load", () => {
     document.querySelector("#City-Search").addEventListener("click", ClickedSearchButton);
+    document.querySelector("#History").addEventListener("click", ClickedHistoryButton);
 
     LoadSearchHistory();
 });
 
-async function ClickedSearchButton(event){
+function ClickedSearchButton(event){
     const searchTextEL = event.target.parentNode.querySelector("input");
     
-    let results = await GetForecastData(searchTextEL.value);
+    SearchForWeather(searchTextEL.value);
 
-    AddCityToSearchHistory(searchTextEL.value);
+    searchTextEL.value = "";
+};
+
+function ClickedHistoryButton(event){
+    if(event.target.localName === "button"){
+        SearchForWeather(event.target.textContent);
+    }
+};
+
+async function SearchForWeather(searchText) {
+    let results = await GetForecastData(searchText);
+
+    AddCityToSearchHistory(searchText);
 
     UpdateForecastInfo(results);
-};
+}
 
 async function GetForecastData(searchText){
     let results = null;
@@ -110,33 +123,38 @@ async function GetLatLongFromAPI(city){
 function AddResultsToSessionStorage(city, results){};
 
 function UpdateForecastInfo(forecastData){
-    const today = document.querySelector("#Day-Forecast");
-    
-    let todaysDetails = today.querySelectorAll("p span");
-    let currentDay = forecastData.Forecast[0];
+    if(forecastData)
+    {
+        const today = document.querySelector("#Day-Forecast");
+        
+        let todaysDetails = today.querySelectorAll("p span");
+        let currentDay = forecastData.Forecast[0];
 
-    today.querySelector("h2 span").textContent = forecastData.City + " (" + currentDay.Date.toLocaleDateString() + ")";
-    today.querySelector("h2 img").setAttribute("src", "http://openweathermap.org/img/wn/"+currentDay.Icon+".png");
-    today.querySelector("h2 img").setAttribute("alt", currentDay.Description);
-    todaysDetails[0].textContent = currentDay.Temp;
-    todaysDetails[1].textContent = currentDay.Wind;
-    todaysDetails[2].textContent = currentDay.Humidity;
+        today.querySelector("h2 span").textContent = forecastData.City + " (" + currentDay.Date.toLocaleDateString() + ")";
+        today.querySelector("h2 img").setAttribute("src", "http://openweathermap.org/img/wn/"+currentDay.Icon+".png");
+        today.querySelector("h2 img").setAttribute("alt", currentDay.Description);
+        todaysDetails[0].textContent = currentDay.Temp;
+        todaysDetails[1].textContent = currentDay.Wind;
+        todaysDetails[2].textContent = currentDay.Humidity;
 
-    const forecastDays = document.querySelectorAll("#Short-Term-Forecast div");
+        const forecastDays = document.querySelectorAll("#Short-Term-Forecast div");
 
-    for (let index = 0; index < forecastDays.length; index++) {
-        if (index+1 < forecastData.Forecast.length)
-        {
-            todaysDetails = forecastDays[index].querySelectorAll("p span");
-            currentDay = forecastData.Forecast[index+1];
+        for (let index = 0; index < forecastDays.length; index++) {
+            if (index+1 < forecastData.Forecast.length)
+            {
+                todaysDetails = forecastDays[index].querySelectorAll("p span");
+                currentDay = forecastData.Forecast[index+1];
 
-            forecastDays[index].querySelector("h4").textContent = currentDay.Date.toLocaleDateString();
-            forecastDays[index].querySelector("img").setAttribute("src", "http://openweathermap.org/img/wn/"+currentDay.Icon+".png");
-            forecastDays[index].querySelector("img").setAttribute("alt", currentDay.Description);
-            todaysDetails[0].textContent = currentDay.Temp;
-            todaysDetails[1].textContent = currentDay.Wind;
-            todaysDetails[2].textContent = currentDay.Humidity;
+                forecastDays[index].querySelector("h4").textContent = currentDay.Date.toLocaleDateString();
+                forecastDays[index].querySelector("img").setAttribute("src", "http://openweathermap.org/img/wn/"+currentDay.Icon+".png");
+                forecastDays[index].querySelector("img").setAttribute("alt", currentDay.Description);
+                todaysDetails[0].textContent = currentDay.Temp;
+                todaysDetails[1].textContent = currentDay.Wind;
+                todaysDetails[2].textContent = currentDay.Humidity;
+            }
         }
+    } else {
+        
     }
 };
 
