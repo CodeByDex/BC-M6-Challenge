@@ -35,7 +35,7 @@ async function SearchForWeather(searchText) {
         return;
     }
 
-    AddCityToSearchHistory(searchText);
+    AddCityToSearchHistory(results.City);
 
     UpdateForecastInfo(results);
 }
@@ -62,13 +62,13 @@ function CheckSessionForResults(city){return null;};
 
 //api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API key}
 async function GetForecastFromAPI(city){
-    let lat, long;
+    let lat, long, cityName, stateName, countryName;
     let results = {
         City: city,
         Forecast: []
     };
 
-    [lat, long] = await GetLatLongFromAPI(city);
+    [lat, long, cityName, stateName, countryName] = await GetLatLongFromAPI(city);
 
     if (lat === null || long === null) {
         return null;
@@ -91,7 +91,11 @@ async function GetForecastFromAPI(city){
 
     let forecastData = await response.json();
 
-    results.City = forecastData.city.name; 
+    if(stateName === undefined){
+        results.City = cityName + ", " + countryName; 
+    } else {
+        results.City = cityName + ", " + stateName + ", " + countryName; 
+    }
 
     //Start at the most current available forecast and advance by 24 hours (8 * 3 Hours = 24)
     for (let index = 0; index < forecastData.list.length; index = index + 8) {
@@ -137,7 +141,7 @@ async function GetLatLongFromAPI(city){
             DisplayError("No Coordinates Returned" + "\n" + "Could not retrieve Location Coordinates");
             return [null, null];
         }
-        return [results[0].lat, results[0].lon];
+        return [results[0].lat, results[0].lon, results[0].name, results[0].state, results[0].country];
     } else {
         DisplayError("Response Error: " + response.status + "\n" + "Could not retrieve Location Coordinates");
         return [null, null];
